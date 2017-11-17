@@ -83,6 +83,7 @@ static int msr_parse_whitelist(const char *whitelist_path, size_t *num_msr_ptr, 
         goto exit;
     }
 
+    int whitelist_header = read(whitelist_fd, copy_buffer, sizeof(copy_buffer));
     while ((num_read = read(whitelist_fd, copy_buffer, sizeof(copy_buffer))))
     {
         if (num_read == -1)
@@ -213,7 +214,7 @@ static int msr_parse_whitelist(const char *whitelist_path, size_t *num_msr_ptr, 
     }
 
     /* Parse the whitelist */
-    const char *whitelist_format = "MSR: %llx Write Mask: %llx\n";
+    const char *whitelist_format = "%llX %llX\n";
     whitelist_ptr = whitelist_buffer;
     for (i = 0; i < num_msr; ++i)
     {
@@ -303,9 +304,9 @@ int msr_save(const char *save_path, const char *whitelist_path, const char *msr_
             if (read_count != sizeof(uint64_t))
             {
                 err = errno ? errno : -1;
-                snprintf(err_msg, NAME_MAX, "Failed to read msr value from MSR file \"%s\"!", msr_file_name);
+                snprintf(err_msg, NAME_MAX, "Failed to read msr value 0x%llX from MSR file \"%s\"!", msr_offset[j], msr_file_name);
                 perror(err_msg);
-                goto exit;
+                //goto exit;
             }
             save_buffer[i * num_msr + j] &= msr_mask[j];
         }
